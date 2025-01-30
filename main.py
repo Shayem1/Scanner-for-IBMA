@@ -9,6 +9,23 @@ from PIL import Image, ImageTk
 def focus():
     input_id.focus_force()
 
+# function to remove invalid ID's
+def remove_red():
+    for i in red_list:
+        i.destroy()
+
+# function to remove certain ID
+def selected_id(id):
+    button_list.remove(button_list.index[id])
+
+# function to select ID
+def selection(id):
+    
+    selected_student.configure(text="Selected Student:\n"+str(id))
+    """if first_run == True:
+        first_run = False
+        del_selected_ID.configure(command = selected_id(StudID))"""
+    pass
 
 # scanner setup
 def data_validation(string):
@@ -25,14 +42,16 @@ def data_validation(string):
 
 # scanner main entry
 def ID_entered(event):
-    global IDlist 
+    global IDlist, StudID
     # student ID is sent to be validated
     validation = data_validation(input_id.get())
+
+    index =+ 1
 
     #adds ID's
     color = validation[1]
     Tcolor = validation[2]
-    StudID = customtkinter.CTkButton(master=IDframe, text=input_id.get(), font=("arial",35), fg_color=color, text_color=Tcolor, corner_radius=10)
+    StudID = customtkinter.CTkButton(master=IDframe, text=input_id.get(), font=("arial",35), fg_color=color, text_color=Tcolor, corner_radius=10, command=selection(index))
     StudID.pack(pady=10)
 
     #makes the scroll wheel to the bottom/new entries
@@ -43,16 +62,17 @@ def ID_entered(event):
     IDlist.append(input_id.get())
     button_list.append(StudID)
 
+    if validation[0] == False:
+        red_list.append(StudID)
+
     # resets the entry field
     input_id.delete(0, END)
+
     time_update()
 
 def time_update():
     T = time.localtime()
-    if T[3] == 12 or T[3] < 7:
-        p = "pm"
-    else: p="am"
-    today = "Today is: "+str(T[2])+"/"+str(T[1])+"/"+str(T[0])+"  "+str(T[3])+":"+str(T[4])+" "+str(p)
+    today = "Today is: "+str(T[2])+"/"+str(T[1])+"/"+str(T[0])+"  "+str(T[3])+":"+str(T[4])
     time_text.configure(text=today)
     GUI.after(10000, time_update)
 
@@ -94,9 +114,21 @@ OPTIONS_text.grid(pady=15, row=0, column = 1, columnspan = 4)
 manual_text = customtkinter.CTkLabel(master= option_frame, text="Manual Entry", font=("arial",40), fg_color="#41229c", corner_radius=10)
 manual_text.place(relx = 0.05, rely =0.2)
 
+del_red = customtkinter.CTkButton(master= option_frame, text="Delete All Red", font=("arial",40), fg_color="#f50a0e", corner_radius=15, height=60, command=remove_red)
+del_red.place(relx = 0.3, rely =0.85)
 
+del_selected_ID = customtkinter.CTkButton(master= option_frame, text="Delete \n selected ID", state=DISABLED,font=("arial",40), fg_color="#f50a0e", corner_radius=10)
+del_selected_ID.place(relx = 0.07, rely =0.35)
+
+selected_student = customtkinter.CTkLabel(master=option_frame, text="Selected Student:\nNo one selected", font=("arial",35))
+selected_student.place(relx = 0.52, rely = 0.36)
+
+global button_list, IDlist, red_list
 IDlist = [] #temp variable
 button_list = []
+red_list = []
+first_run = True
+index = 0
 
 #set up entry box
 input_id = customtkinter.CTkEntry(master=option_frame, placeholder_text = "Write ID here", font=("arial",35), width=300, height= 45)
