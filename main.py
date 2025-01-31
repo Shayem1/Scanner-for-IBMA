@@ -5,27 +5,27 @@ import sys
 from PIL import Image, ImageTk
 # importing packagees
 
-# makes the entry box the focus
-def focus():
-    input_id.focus_force()
 
 # function to remove invalid ID's
 def remove_red():
     for i in red_list:
         i.destroy()
+    selected_student.configure(text="Selected Student:\nNo one selected")
 
 # function to remove certain ID
 def selected_id(id):
-    button_list.remove(button_list.index[id])
+    id.destroy()
+    del_selected_ID.configure(state=DISABLED)
+    selected_student.configure(text="Selected Student:\nNo one selected")
+    GUI.update_idletasks()
+
 
 # function to select ID
 def selection(id):
-    
-    selected_student.configure(text="Selected Student:\n"+str(id))
-    """if first_run == True:
-        first_run = False
-        del_selected_ID.configure(command = selected_id(StudID))"""
-    pass
+    selected_student.configure(text="Selected Student:\n"+str(id.cget("text")))
+    del_selected_ID.configure(state=NORMAL)
+    del_selected_ID.configure(command=lambda: selected_id(id))
+    GUI.update_idletasks()
 
 # scanner setup
 def data_validation(string):
@@ -42,18 +42,17 @@ def data_validation(string):
 
 # scanner main entry
 def ID_entered(event):
-    global IDlist, StudID
+    global IDlist, StudID, index, button_list
     # student ID is sent to be validated
     validation = data_validation(input_id.get())
-
-    index =+ 1
 
     #adds ID's
     color = validation[1]
     Tcolor = validation[2]
-    StudID = customtkinter.CTkButton(master=IDframe, text=input_id.get(), font=("arial",35), fg_color=color, text_color=Tcolor, corner_radius=10, command=selection(index))
+    StudID = customtkinter.CTkButton(master=IDframe, text=input_id.get(), font=("arial",35), fg_color=color, text_color=Tcolor, corner_radius=10)
     StudID.pack(pady=10)
-
+    
+    index = index + 1
     #makes the scroll wheel to the bottom/new entries
     GUI.update_idletasks()
     canvas.yview_moveto(1)
@@ -61,6 +60,8 @@ def ID_entered(event):
     # stores ID's in a list
     IDlist.append(input_id.get())
     button_list.append(StudID)
+    StudID.configure(command=lambda button = StudID: selection(button))
+
 
     if validation[0] == False:
         red_list.append(StudID)
@@ -72,7 +73,10 @@ def ID_entered(event):
 
 def time_update():
     T = time.localtime()
-    today = "Today is: "+str(T[2])+"/"+str(T[1])+"/"+str(T[0])+"  "+str(T[3])+":"+str(T[4])
+    minute = T[4]
+    if len(str(minute)) == 1:
+        minute = "0"+str(minute)
+    today = "Today is: "+str(T[2])+"/"+str(T[1])+"/"+str(T[0])+"  "+str(T[3])+":"+str(minute)
     time_text.configure(text=today)
     GUI.after(10000, time_update)
 
@@ -96,10 +100,10 @@ option_frame.grid(padx = 25, row=1, column = 1,  sticky="nsew", pady=20)
 
 # time setup
 T = time.localtime()
-if T[3] == 12 or T[3] < 7:
-    p = "pm"
-else: p="am"
-today = "Today is: "+str(T[2])+"/"+str(T[1])+"/"+str(T[0])+"  "+str(T[3])+":"+str(T[4])+" "+str(p)
+minute = T[4]
+if str(minute) == 1:
+    minute = "0"+str(minute)
+today = "Today is: "+str(T[2])+"/"+str(T[1])+"/"+str(T[0])+"  "+str(T[3])+":"+str(minute)
 time_text = customtkinter.CTkLabel(master= option_frame, text=today, font=("arial",40))
 time_text.place(relx = 0.12, rely = 0.07)
 time_update()
@@ -123,12 +127,12 @@ del_selected_ID.place(relx = 0.07, rely =0.35)
 selected_student = customtkinter.CTkLabel(master=option_frame, text="Selected Student:\nNo one selected", font=("arial",35))
 selected_student.place(relx = 0.52, rely = 0.36)
 
-global button_list, IDlist, red_list
+global index
 IDlist = [] #temp variable
 button_list = []
 red_list = []
 first_run = True
-index = 0
+index = -1
 
 #set up entry box
 input_id = customtkinter.CTkEntry(master=option_frame, placeholder_text = "Write ID here", font=("arial",35), width=300, height= 45)
@@ -139,7 +143,7 @@ input_id.bind("<Return>", ID_entered)
 
 #binds the curser to the entry field
 input_id.focus_force()
-GUI.bind("key", focus())
+
 
 
 
