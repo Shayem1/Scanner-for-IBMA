@@ -3,6 +3,7 @@ import customtkinter
 import time
 import sys
 from PIL import Image, ImageTk
+import datetime
 # importing packagees
 
 
@@ -11,6 +12,7 @@ def remove_red():
     for i in red_list:
         i.destroy()
     selected_student.configure(text="Selected Student:\nNo one selected")
+    del_selected_ID.configure(state=DISABLED)
 
 # function to remove certain ID
 def selected_id(id):
@@ -76,7 +78,7 @@ def time_update():
     minute = T[4]
     if len(str(minute)) == 1:
         minute = "0"+str(minute)
-    today = "Today is: "+str(T[2])+"/"+str(T[1])+"/"+str(T[0])+"  "+str(T[3])+":"+str(minute)
+    today = "Today is:\n\n"+str(day_of_week)+" "+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+"  "+str(T[3])+":"+str(minute)
     time_text.configure(text=today)
     GUI.after(10000, time_update)
 
@@ -99,13 +101,15 @@ option_frame = customtkinter.CTkFrame(master=GUI, width=670, height= 600, corner
 option_frame.grid(padx = 25, row=1, column = 1,  sticky="nsew", pady=20)
 
 # time setup
+current_date = datetime.datetime.now()
+day_of_week = current_date.strftime('%A')
 T = time.localtime()
 minute = T[4]
 if str(minute) == 1:
     minute = "0"+str(minute)
-today = "Today is: "+str(T[2])+"/"+str(T[1])+"/"+str(T[0])+"  "+str(T[3])+":"+str(minute)
+today = "Today is: "+str(day_of_week)+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+"  "+str(T[3])+":"+str(minute)
 time_text = customtkinter.CTkLabel(master= option_frame, text=today, font=("arial",40))
-time_text.place(relx = 0.12, rely = 0.07)
+time_text.place(relx = 0.2, rely = 0.05)
 time_update()
 
 # text setup
@@ -116,16 +120,16 @@ OPTIONS_text = customtkinter.CTkLabel(master= GUI, text="   OPTIONS   ", font=("
 OPTIONS_text.grid(pady=15, row=0, column = 1, columnspan = 4)
 
 manual_text = customtkinter.CTkLabel(master= option_frame, text="Manual Entry", font=("arial",40), fg_color="#41229c", corner_radius=10)
-manual_text.place(relx = 0.05, rely =0.2)
+manual_text.place(relx = 0.05, rely =0.35)
 
 del_red = customtkinter.CTkButton(master= option_frame, text="Delete All Red", font=("arial",40), fg_color="#f50a0e", corner_radius=15, height=60, command=remove_red)
 del_red.place(relx = 0.3, rely =0.85)
 
 del_selected_ID = customtkinter.CTkButton(master= option_frame, text="Delete \n selected ID", state=DISABLED,font=("arial",40), fg_color="#f50a0e", corner_radius=10)
-del_selected_ID.place(relx = 0.07, rely =0.35)
+del_selected_ID.place(relx = 0.07, rely =0.55)
 
 selected_student = customtkinter.CTkLabel(master=option_frame, text="Selected Student:\nNo one selected", font=("arial",35))
-selected_student.place(relx = 0.52, rely = 0.36)
+selected_student.place(relx = 0.52, rely = 0.56)
 
 global index
 IDlist = [] #temp variable
@@ -136,7 +140,7 @@ index = -1
 
 #set up entry box
 input_id = customtkinter.CTkEntry(master=option_frame, placeholder_text = "Write ID here", font=("arial",35), width=300, height= 45)
-input_id.place(relx = 0.5, rely = 0.2)
+input_id.place(relx = 0.5, rely = 0.35)
 
 # pressing enter will accept the entry
 input_id.bind("<Return>", ID_entered)
