@@ -15,7 +15,7 @@ from openpyxl import load_workbook
 def save_data():
     global workbook, worksheet, wb, sheet
     name = str(day_of_week)+" "+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+".xlsx"
-    wb.close()
+    workbook.close()
 
     if os.path.exists(name):
         os.remove(name)
@@ -46,16 +46,22 @@ def remove_red():
     global red_list, button_list
     for i in red_list:
         i.destroy()
-    
-    for i in red_list:
         if i in button_list:
             button_list.remove(i)
+            red_list.remove(i)
+        time.sleep(0.01)
+
     selected_student.configure(text="Selected Student:\nNo one selected")
     del_selected_ID.configure(state=DISABLED)
 
 # function to remove certain ID
 def selected_id(id):
     id.destroy()
+    if id in button_list:
+        button_list.remove(id)
+    if id in red_list:
+        red_list.remove(id)
+
     del_selected_ID.configure(state=DISABLED)
     selected_student.configure(text="Selected Student:\nNo one selected")
     GUI.update_idletasks()
@@ -135,7 +141,7 @@ GUI = customtkinter.CTk()
 GUI.geometry("1200x800")
 GUI.maxsize(width=1200, height=800)
 GUI.minsize(width=1200, height=800)
-GUI. title("Student ID Scanner")
+GUI.title("Student ID Scanner")
 GUI.grid_rowconfigure(1, weight=1, uniform="equal")
 GUI.grid_columnconfigure(2, weight=1, uniform="equal")
 customtkinter.set_appearance_mode("dark")
@@ -168,10 +174,10 @@ time_text.place(relx = 0.2, rely = 0.05)
 #save data setup
 name = str(day_of_week)+" "+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+".xlsx"
 
-
 #prevents overwriting data after a crash
 if os.path.exists(name):
-        GUI.destroy()
+    GUI.destroy()
+    quit()
 
 workbook = xlsxwriter.Workbook(name)
 
