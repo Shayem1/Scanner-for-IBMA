@@ -10,6 +10,17 @@ from openpyxl import load_workbook
 # importing packages
 
 
+# function to save data
+def save_data():
+
+    for value in IDlist:
+        sheet.cell(row,1).value = str(row)
+        sheet.cell(row,2).value = str(value)
+        row += 1
+        wb.template = False
+        wb.save(name)
+    
+
 # function to remove invalid ID's
 def remove_red():
     for i in red_list:
@@ -84,6 +95,8 @@ def time_update():
     today = "Today is:\n\n"+str(day_of_week)+" "+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+"  "+str(T[3])+":"+str(minute)
     time_text.configure(text=today)
     GUI.after(10000, time_update)
+    save_data()
+
 
 # initialising the GUI
 GUI = customtkinter.CTk()
@@ -114,6 +127,17 @@ today = "Today is: "+str(day_of_week)+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+"  "
 time_text = customtkinter.CTkLabel(master= option_frame, text=today, font=("arial",40))
 time_text.place(relx = 0.2, rely = 0.05)
 time_update()
+
+#save files setup
+name = str(day_of_week)+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+".xlsx"
+workbook = xlsxwriter.Workbook(name)
+worksheet = workbook.add_worksheet()
+worksheet.write(0, 1, "Id")
+worksheet.set_column("A:G", 20)
+row = 2
+workbook.close()
+wb = load_workbook(name, data_only=True)
+sheet = wb.active
 
 # text setup
 studentid_text = customtkinter.CTkLabel(master= GUI, text="   Student ID   ", font=("arial",45), fg_color="#41229c", corner_radius=10)
