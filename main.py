@@ -85,14 +85,16 @@ def selection(id):
 # scanner setup
 def data_validation(string):
     try:
-        if len(string) == 8 and int(string[0,3])>= 2016 and int(string[0,3]) <= 2099:
+        print(int(string[0:4]))
+        if len(string) == 8 and int(string[0:4]) > 2000 and int(string[0:4]) < 2100:
             list1 = [True,"#13005e", "White"]
-    except: pass
+            
+        elif len(string) == 9 and str(string[0:3])=="IBM" and int(string[3:9]) != 00000:
+            list1 = [True, "#0f39d4", "Black"]
 
-    if len(string) == 9 and "IBM" in string:
-        list1 = [True, "#0f39d4", "Black"]
-    
-    else:
+        else:
+            list1 = [False, "red", "Black"]
+    except:
         list1 = [False, "red", "Black"]
 
     return list1
