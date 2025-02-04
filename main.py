@@ -71,8 +71,6 @@ def selected_id(id):
         red_list.remove(id)
     del_selected_ID.configure(state=DISABLED)
     selected_student.configure(text="Selected Student:\nNo one selected")
-    GUI.update_idletasks()
-
 
 
 # function to select ID
@@ -85,7 +83,6 @@ def selection(id):
 # scanner setup
 def data_validation(string):
     try:
-        print(int(string[0:4]))
         if len(string) == 8 and int(string[0:4]) > 2000 and int(string[0:4]) < 2100:
             list1 = [True,"#13005e", "White"]
             
