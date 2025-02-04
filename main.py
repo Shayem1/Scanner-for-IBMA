@@ -2,7 +2,6 @@ from tkinter import *
 import customtkinter
 import time
 import sys
-from PIL import Image, ImageTk
 import datetime
 import xlsxwriter
 import os
@@ -13,55 +12,63 @@ from openpyxl import load_workbook
 
 # function to save data
 def save_data():
+    save_data_manual()
+    # Set up the next save to occur after 5 minutes
+    GUI.after(15000, save_data)
+
+def save_data_manual():
     global workbook, worksheet, wb, sheet
     name = str(day_of_week)+" "+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+".xlsx"
-    workbook.close()
 
-    if os.path.exists(name):
-        os.remove(name)
-
-        workbook = xlsxwriter.Workbook(name)
-        worksheet = workbook.add_worksheet()
-        worksheet.write(0, 1, "Id")
-        worksheet.set_column("A:G", 20)
+    try:
         workbook.close()
-        row = 2
-        wb = load_workbook(name, data_only=True)
-        sheet = wb.active
+        if os.path.exists(name):
+            os.remove(name)
+            workbook = xlsxwriter.Workbook(name)
+            worksheet = workbook.add_worksheet()
+            worksheet.write(0, 1, "Id")
+            worksheet.set_column("A:G", 20)
+            workbook.close()
+            row = 2
+            wb = load_workbook(name, data_only=True)
+            sheet = wb.active
 
-        for i in button_list:
-            id = i.cget("text")
-            sheet.cell(row,1).value = str(row)
-            sheet.cell(row,2).value = str(id)
-            row += 1
+            for i in button_list:
+                id = i.cget("text")
+                sheet.cell(row,1).value = str(row)
+                sheet.cell(row,2).value = str(id)
+                row += 1
 
-        wb.template = False
-        wb.save(name)
-
-    GUI.after(5000, save_data)
+            wb.template = False
+            wb.save(name)
+    except:
+        print("stawp touching my files :(")
+    
 
 
 # function to remove invalid ID's
 def remove_red():
     global red_list, button_list
+    # Iterate over a copy of red_list to avoid modifying it while iterating
     for i in red_list:
         i.destroy()
         if i in button_list:
             button_list.remove(i)
-            red_list.remove(i)
-        time.sleep(0.01)
-
+        red_list.remove(i)
+    if len(red_list) > 0:
+        remove_red()
     selected_student.configure(text="Selected Student:\nNo one selected")
     del_selected_ID.configure(state=DISABLED)
 
+
 # function to remove certain ID
 def selected_id(id):
+    global button_list, red_list
     id.destroy()
     if id in button_list:
         button_list.remove(id)
     if id in red_list:
         red_list.remove(id)
-
     del_selected_ID.configure(state=DISABLED)
     selected_student.configure(text="Selected Student:\nNo one selected")
     GUI.update_idletasks()
@@ -77,10 +84,12 @@ def selection(id):
 
 # scanner setup
 def data_validation(string):
-    if len(string) == 8 and "20" in string:
-        list1 = [True,"#13005e", "White"]
+    try:
+        if len(string) == 8 and int(string[0,3])>= 2016 and int(string[0,3]) <= 2099:
+            list1 = [True,"#13005e", "White"]
+    except: pass
 
-    elif len(string) == 9 and "IBM" in string:
+    if len(string) == 9 and "IBM" in string:
         list1 = [True, "#0f39d4", "Black"]
     
     else:
@@ -115,7 +124,6 @@ def ID_entered(event):
     sheet.cell(index,2).value = str(id)
     wb.save(name)
     
-    print(index,id)
     if validation[0] == False:
         red_list.append(StudID)
 
@@ -123,9 +131,15 @@ def ID_entered(event):
 
     # resets the entry field
     input_id.delete(0, END)
-    time_update()
+    time_update_manual()
 
-
+def time_update_manual():
+    T = time.localtime()
+    minute = T[4]
+    if len(str(minute)) == 1:
+        minute = "0"+str(minute)
+    today = "Today is:\n\n"+str(day_of_week)+" "+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+"  "+str(T[3])+":"+str(minute)
+    time_text.configure(text=today)
 
 def time_update():
     T = time.localtime()
@@ -135,6 +149,7 @@ def time_update():
     today = "Today is:\n\n"+str(day_of_week)+" "+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+"  "+str(T[3])+":"+str(minute)
     time_text.configure(text=today)
     GUI.after(10000, time_update)
+    
 
 # initialising the GUI
 GUI = customtkinter.CTk()
@@ -150,7 +165,6 @@ IDlist = [] #temp variable
 index = 2
 button_list = []
 red_list = []
-first_run = True
 
 # initialising student ID output frame
 IDframe = customtkinter.CTkScrollableFrame(master= GUI, width= 300, corner_radius=30)
@@ -204,14 +218,19 @@ OPTIONS_text.grid(pady=15, row=0, column = 1, columnspan = 4)
 manual_text = customtkinter.CTkLabel(master= option_frame, text="Manual Entry", font=("arial",40), fg_color="#41229c", corner_radius=10)
 manual_text.place(relx = 0.05, rely =0.35)
 
-del_red = customtkinter.CTkButton(master= option_frame, text="Delete All Red", font=("arial",40), fg_color="#f50a0e", corner_radius=15, height=60, command=remove_red)
-del_red.place(relx = 0.3, rely =0.85)
+del_red = customtkinter.CTkButton(master= option_frame, text="Delete All Red", font=("arial",40), fg_color="#f50a0e", corner_radius=15, height=60)
+del_red.configure( command= lambda: remove_red())
+del_red.place(relx = 0.5, rely =0.85)
 
 del_selected_ID = customtkinter.CTkButton(master= option_frame, text="Delete \n selected ID", state=DISABLED,font=("arial",40), fg_color="#f50a0e", corner_radius=10)
 del_selected_ID.place(relx = 0.07, rely =0.55)
 
 selected_student = customtkinter.CTkLabel(master=option_frame, text="Selected Student:\nNo one selected", font=("arial",35))
 selected_student.place(relx = 0.52, rely = 0.56)
+
+save_button = customtkinter.CTkButton(master= option_frame, text="SAVE", state=NORMAL,font=("arial",40), fg_color="#30cf0c", corner_radius=10)
+save_button.place(relx = 0.13, rely =0.86)
+save_button.configure(command = lambda: save_data_manual())
 
 #set up entry box
 input_id = customtkinter.CTkEntry(master=option_frame, placeholder_text = "Write ID here", font=("arial",35), width=300, height= 45)
