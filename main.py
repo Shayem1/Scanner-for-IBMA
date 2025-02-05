@@ -17,8 +17,10 @@ def save_data():
     GUI.after(15000, save_data)
 
 def save_data_manual():
-    global workbook, worksheet, wb, sheet
-    name = str(day_of_week)+" "+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+".xlsx"
+    global workbook, worksheet, wb, sheet, current_date, day_of_week
+    current_date = datetime.datetime.now()
+    day_of_week = current_date.strftime('%A')
+    name = str(day_of_week)+" "+str(day)+"-"+str(month)+"-"+str(T[0])+".xlsx"
 
     try:
         workbook.close()
@@ -118,7 +120,8 @@ def ID_entered(event):
     button_list.append(StudID)
     StudID.configure(command=lambda button = StudID: selection(button))
     
-    
+    index = len(button_list)+1
+
     sheet.cell(index,1).value = str(index)
     sheet.cell(index,2).value = str(id)
     wb.save(name)
@@ -126,26 +129,42 @@ def ID_entered(event):
     if validation[0] == False:
         red_list.append(StudID)
 
-    index += 1
-
     # resets the entry field
     input_id.delete(0, END)
     time_update_manual()
 
 def time_update_manual():
+    global current_date, day_of_week, T, day, month
+    current_date = datetime.datetime.now()
+    day_of_week = current_date.strftime('%A')
     T = time.localtime()
     minute = T[4]
+    day = T[2]
+    month = T[1]
     if len(str(minute)) == 1:
         minute = "0"+str(minute)
-    today = "Today is:\n\n"+str(day_of_week)+" "+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+"  "+str(T[3])+":"+str(minute)
+    if len(str(day)) == 1:
+        day = "0"+str(day)
+    if len(str(month)) == 1:
+        month = "0"+str(month)
+    today = "Today is:\n\n"+str(day_of_week)+" "+str(day)+"-"+str(month)+"-"+str(T[0])+"  "+str(T[3])+":"+str(minute)
     time_text.configure(text=today)
 
 def time_update():
+    global current_date, day_of_week, T, day, month
+    current_date = datetime.datetime.now()
+    day_of_week = current_date.strftime('%A')
     T = time.localtime()
     minute = T[4]
+    day = T[2]
+    month = T[1]
     if len(str(minute)) == 1:
         minute = "0"+str(minute)
-    today = "Today is:\n\n"+str(day_of_week)+" "+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+"  "+str(T[3])+":"+str(minute)
+    if len(str(day)) == 1:
+        day = "0"+str(day)
+    if len(str(month)) == 1:
+        month = "0"+str(month)
+    today = "Today is:\n\n"+str(day_of_week)+" "+str(day)+"-"+str(month)+"-"+str(T[0])+"  "+str(T[3])+":"+str(minute)
     time_text.configure(text=today)
     GUI.after(10000, time_update)
     
@@ -161,7 +180,6 @@ GUI.grid_columnconfigure(2, weight=1, uniform="equal")
 customtkinter.set_appearance_mode("dark")
 
 IDlist = [] #temp variable
-index = 2
 button_list = []
 red_list = []
 
@@ -178,14 +196,19 @@ current_date = datetime.datetime.now()
 day_of_week = current_date.strftime('%A')
 T = time.localtime()
 minute = T[4]
-if str(minute) == 1:
+day = T[2]
+month = T[1]
+if len(str(minute)) == 1:
     minute = "0"+str(minute)
-today = "Today is: "+str(day_of_week)+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+"  "+str(T[3])+":"+str(minute)
-time_text = customtkinter.CTkLabel(master= option_frame, text=today, font=("arial",40))
-time_text.place(relx = 0.2, rely = 0.05)
+if len(str(day)) == 1:
+        day = "0"+str(day)
+if len(str(month)) == 1:
+    month = "0"+str(month)
+time_text = customtkinter.CTkLabel(master= option_frame, font=("arial",40))
+time_text.place(relx = 0.5, rely = 0.05, anchor = N)
 
 #save data setup
-name = str(day_of_week)+" "+str(T[2])+"-"+str(T[1])+"-"+str(T[0])+".xlsx"
+name = str(day_of_week)+" "+str(day)+"-"+str(month)+"-"+str(T[0])+".xlsx"
 
 #prevents overwriting data after a crash
 if os.path.exists(name):
