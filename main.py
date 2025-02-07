@@ -91,11 +91,20 @@ def merge():
     wb = load_workbook(name, data_only=True)
     sheet = wb.active
 
+    
     column_data = []
-    for row1 in sheet.iter_rows(min_row=2, min_col=2, max_col=2, values_only=True):
-        if row1[0] is None:  # Stop if an empty cell is found
-            break
-        column_data.append(row1[0])
+    data_started = False  # Flag to check when valid data starts
+
+    for row in sheet.iter_rows(min_row=2, max_col=2, values_only=True):
+        col1_value, col2_value = row  # Extract values from column A and B
+
+        if col1_value is not None:
+            data_started = True  # Data has started
+        elif data_started:  
+            break  # Stop when an empty cell appears after valid data
+        
+        if data_started:
+            column_data.append(col2_value if col2_value is not None else "")  # Replace None with ""
 
     index = index + len(column_data)
 
