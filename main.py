@@ -10,6 +10,14 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 # importing packages
 
+# fullscreen toggle
+def fullscreen(event):
+    state = GUI.attributes('-fullscreen')
+    if state == False:
+        GUI.maxsize(width=1920, height=1080)
+    else: GUI.maxsize(width=1200, height=800)
+    GUI.attributes('-fullscreen', not state)
+
 
 # function to save data
 def save_data():
@@ -281,6 +289,7 @@ GUI.title("Student ID Scanner")
 GUI.grid_rowconfigure(1, weight=1, uniform="equal")
 GUI.grid_columnconfigure(2, weight=1, uniform="equal")
 customtkinter.set_appearance_mode("dark")
+GUI.bind('<F11>', fullscreen)
 
 global skip
 IDlist = [] #temp variable
