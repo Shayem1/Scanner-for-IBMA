@@ -18,7 +18,6 @@ def fullscreen(event):
     else: GUI.maxsize(width=1200, height=800)
     GUI.attributes('-fullscreen', not state)
 
-
 # function to save data
 def save_data():
     save_data_manual()
@@ -54,7 +53,7 @@ def save_data_manual():
                 wb.template = False
                 wb.save(name)
         except:
-            print("stawp touching my files :(")
+            print("stawp touching my files :(") #THATS NOT HOW U SPELL STOP NI
     
 # function to allow overwriting of data
 def overwrite():
@@ -93,8 +92,7 @@ def merge():
     input_id.configure(state=NORMAL)
     save_button.configure(state=NORMAL)
     del_red.configure(state=NORMAL)
-    skip = True
-
+    skip = True  
 
     wb = load_workbook(name, data_only=True)
     sheet = wb.active
@@ -287,7 +285,7 @@ GUI.maxsize(width=1200, height=800)
 GUI.minsize(width=1200, height=800)
 GUI.title("Student ID Scanner")
 GUI.grid_rowconfigure(1, weight=1, uniform="equal")
-GUI.grid_columnconfigure(2, weight=1, uniform="equal")
+GUI.grid_columnconfigure(1, weight=1, uniform="equal")
 customtkinter.set_appearance_mode("dark")
 GUI.bind('<F11>', fullscreen)
 
@@ -333,25 +331,25 @@ OPTIONS_text = customtkinter.CTkLabel(master= GUI, text="   OPTIONS   ", font=("
 OPTIONS_text.grid(pady=15, row=0, column = 1, columnspan = 4)
 
 manual_text = customtkinter.CTkLabel(master= option_frame, text="Manual Entry", font=("arial",40), fg_color="#41229c", corner_radius=10)
-manual_text.place(relx = 0.05, rely =0.35)
+manual_text.place(relx = 0.3, rely =0.35, anchor = CENTER)
 
 del_red = customtkinter.CTkButton(master= option_frame, text="Delete All Red", font=("arial",40), fg_color="#f50a0e", corner_radius=15, height=60)
 del_red.configure( command= lambda: remove_red())
-del_red.place(relx = 0.5, rely =0.85)
+del_red.place(relx = 0.55, rely =0.85)
 
 del_selected_ID = customtkinter.CTkButton(master= option_frame, text="Delete \n selected ID", state=DISABLED,font=("arial",40), fg_color="#f50a0e", corner_radius=10)
-del_selected_ID.place(relx = 0.07, rely =0.55)
+del_selected_ID.place(relx = 0.3, rely =0.6, anchor = CENTER)
 
 selected_student = customtkinter.CTkLabel(master=option_frame, text="Selected Student:\nNo one selected", font=("arial",35))
-selected_student.place(relx = 0.52, rely = 0.56)
+selected_student.place(relx = 0.55, rely = 0.54)
 
 save_button = customtkinter.CTkButton(master= option_frame, text="SAVE", state=NORMAL,font=("arial",40), fg_color="#30cf0c", corner_radius=10)
-save_button.place(relx = 0.13, rely =0.86)
+save_button.place(relx = 0.3, rely =0.89, anchor = CENTER)
 save_button.configure(command = lambda: save_data_manual())
 
 #set up entry box
-input_id = customtkinter.CTkEntry(master=option_frame, placeholder_text = "Write ID here", font=("arial",35), width=300, height= 45)
-input_id.place(relx = 0.5, rely = 0.35)
+input_id = customtkinter.CTkEntry(master=option_frame, placeholder_text = "Write ID here", font=("arial",35), width=280, height= 45)
+input_id.place(relx = 0.54, rely = 0.32)
 
 # pressing enter will accept the entry
 input_id.bind("<Return>", ID_entered)
@@ -361,14 +359,11 @@ input_id.focus_force()
 
 #prevents overwriting data after a crash
 if os.path.exists(name):
-    global choice
     skip = False
     # disabled buttons
     input_id.configure(state=DISABLED)
     save_button.configure(state=DISABLED)
     del_red.configure(state=DISABLED)
-
-    choice = tk.StringVar()
 
     
     warning_frame = customtkinter.CTkFrame(master = GUI,width = 600, height = 250, corner_radius = 20, fg_color="grey92", bg_color="grey18")
