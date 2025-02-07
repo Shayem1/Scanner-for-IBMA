@@ -1,4 +1,5 @@
 from tkinter import *
+import tkinter as tk
 import customtkinter
 import time
 import sys
@@ -22,31 +23,123 @@ def save_data_manual():
     day_of_week = current_date.strftime('%A')
     name = str(day_of_week)+" "+str(day)+"-"+str(month)+"-"+str(T[0])+".xlsx"
 
-    try:
-        workbook.close()
-        if os.path.exists(name):
-            os.remove(name)
-            workbook = xlsxwriter.Workbook(name)
-            worksheet = workbook.add_worksheet()
-            worksheet.write(0, 1, "Id")
-            worksheet.set_column("A:G", 20)
+    if skip == True:
+        try:
             workbook.close()
-            row = 2
-            wb = load_workbook(name, data_only=True)
-            sheet = wb.active
+            if os.path.exists(name):
+                os.remove(name)
+                workbook = xlsxwriter.Workbook(name)
+                worksheet = workbook.add_worksheet()
+                worksheet.write(0, 1, "Id")
+                worksheet.set_column("A:G", 20)
+                workbook.close()
+                row = 2
+                wb = load_workbook(name, data_only=True)
+                sheet = wb.active
 
-            for i in button_list:
-                id = i.cget("text")
-                sheet.cell(row,1).value = str(row)
-                sheet.cell(row,2).value = str(id)
-                row += 1
+                for i in button_list:
+                    id = i.cget("text")
+                    sheet.cell(row,1).value = str(row)
+                    sheet.cell(row,2).value = str(id)
+                    row += 1
 
-            wb.template = False
-            wb.save(name)
-    except:
-        print("stawp touching my files :(")
+                wb.template = False
+                wb.save(name)
+        except:
+            print("stawp touching my files :(")
     
+# function to allow overwriting of data
+def overwrite():
+    global skip, workbook, worksheet, row, sheet, name
+    # allows it to skip warning
+    skip = True
 
+    #removes the warning and sets buttons to active again
+    warning_frame.destroy()
+    input_id.configure(state=NORMAL)
+    save_button.configure(state=NORMAL)
+    del_red.configure(state=NORMAL)
+
+    os.remove(name)
+
+    workbook = xlsxwriter.Workbook(name)
+
+    worksheet = workbook.add_worksheet()
+
+    worksheet.write(0, 1, "Id")
+    worksheet.set_column("A:G", 20)
+    workbook.close()
+
+    row = 2
+    wb = load_workbook(name, data_only=True)
+    sheet = wb.active
+
+    #removes data
+
+
+# load data
+def merge():
+    global skip, workbook, worksheet, row, sheet, name, index, IDlist, StudID, button_list, id,red_list
+
+    warning_frame.destroy()
+    input_id.configure(state=NORMAL)
+    save_button.configure(state=NORMAL)
+    del_red.configure(state=NORMAL)
+    skip = True
+
+
+    wb = load_workbook(name, data_only=True)
+    sheet = wb.active
+
+    column_data = []
+    for row1 in sheet.iter_rows(min_row=2, min_col=2, max_col=2, values_only=True):
+        if row1[0] is None:  # Stop if an empty cell is found
+            break
+        column_data.append(row1[0])
+
+    index = index + len(column_data)
+
+    os.remove(name)
+
+    workbook = xlsxwriter.Workbook(name)
+
+    worksheet = workbook.add_worksheet()
+
+    worksheet.write(0, 1, "Id")
+    worksheet.set_column("A:G", 20)
+    workbook.close()
+
+    row = 2
+    wb = load_workbook(name, data_only=True)
+    sheet = wb.active
+
+    for id in column_data:
+        # student ID is sent to be validated
+        validation = data_validation(id)
+
+        #adds ID's
+        color = validation[1]
+        Tcolor = validation[2]
+        StudID = customtkinter.CTkButton(master=IDframe, text=id, font=("arial",35), fg_color=color, text_color=Tcolor, corner_radius=10)
+        StudID.pack(pady=10)
+        
+        #makes the scroll wheel to the bottom/new entries
+        GUI.update_idletasks()
+        canvas.yview_moveto(1)
+
+        # stores ID's in a list
+        IDlist.append(id)
+        button_list.append(StudID)
+        StudID.configure(command=lambda button = StudID: selection(button))
+
+        sheet.cell(index,1).value = str(index)
+        sheet.cell(index,2).value = str(id)
+        wb.save(name)
+        index = index +1
+
+        if validation[0] == False:
+            red_list.append(StudID)
+    save_data_manual()
 
 # function to remove invalid ID's
 def remove_red():
@@ -85,10 +178,10 @@ def selection(id):
 # scanner setup
 def data_validation(string):
     try:
-        if len(string) == 8 and int(string[0:4]) > 2000 and int(string[0:4]) < 2100:
+        if len(string) == 8 and int(string[0:4]) > 2000 and int(string[0:4]) < 2100 and string.isnumeric() == True:
             list1 = [True,"#13005e", "White"]
             
-        elif len(string) == 9 and str(string[0:3])=="IBM" and int(string[3:9]) != 00000:
+        elif len(string) == 9 and str(string[0:3])=="IBM" and string[3:9].isnumeric() == True:
             list1 = [True, "#0f39d4", "Black"]
 
         else:
@@ -104,6 +197,8 @@ def ID_entered(event):
     # student ID is sent to be validated
     id = input_id.get()
     validation = data_validation(id)
+    # resets the entry field
+    input_id.delete(0, END)
 
     #adds ID's
     color = validation[1]
@@ -120,17 +215,16 @@ def ID_entered(event):
     button_list.append(StudID)
     StudID.configure(command=lambda button = StudID: selection(button))
     
-    index = len(button_list)+1
+    
 
     sheet.cell(index,1).value = str(index)
     sheet.cell(index,2).value = str(id)
     wb.save(name)
-    
+    index = index +1
+
     if validation[0] == False:
         red_list.append(StudID)
 
-    # resets the entry field
-    input_id.delete(0, END)
     time_update_manual()
 
 def time_update_manual():
@@ -179,9 +273,12 @@ GUI.grid_rowconfigure(1, weight=1, uniform="equal")
 GUI.grid_columnconfigure(2, weight=1, uniform="equal")
 customtkinter.set_appearance_mode("dark")
 
+global skip
 IDlist = [] #temp variable
 button_list = []
 red_list = []
+index = 2
+skip = True
 
 # initialising student ID output frame
 IDframe = customtkinter.CTkScrollableFrame(master= GUI, width= 300, corner_radius=30)
@@ -209,26 +306,6 @@ time_text.place(relx = 0.5, rely = 0.05, anchor = N)
 
 #save data setup
 name = str(day_of_week)+" "+str(day)+"-"+str(month)+"-"+str(T[0])+".xlsx"
-
-#prevents overwriting data after a crash
-if os.path.exists(name):
-    GUI.destroy()
-    quit()
-
-workbook = xlsxwriter.Workbook(name)
-
-worksheet = workbook.add_worksheet()
-
-worksheet.write(0, 1, "Id")
-worksheet.set_column("A:G", 20)
-workbook.close()
-
-row = 2
-wb = load_workbook(name, data_only=True)
-sheet = wb.active
-
-time_update()
-save_data()
 
 # text setup
 studentid_text = customtkinter.CTkLabel(master= GUI, text="   Student ID   ", font=("arial",45), fg_color="#41229c", corner_radius=10)
@@ -263,5 +340,55 @@ input_id.bind("<Return>", ID_entered)
 
 #binds the curser to the entry field
 input_id.focus_force()
+
+#prevents overwriting data after a crash
+if os.path.exists(name):
+    global choice
+    skip = False
+    # disabled buttons
+    input_id.configure(state=DISABLED)
+    save_button.configure(state=DISABLED)
+    del_red.configure(state=DISABLED)
+
+    choice = tk.StringVar()
+
+    
+    warning_frame = customtkinter.CTkFrame(master = GUI,width = 600, height = 250, corner_radius = 20, fg_color="grey92", bg_color="grey18")
+    warning_frame.place(relx = 0.5, rely = 0.5, anchor = CENTER)
+
+    #information
+    warning_label = customtkinter.CTkLabel(master=warning_frame, text="WARNING - DATA FOUND", bg_color="grey92", text_color="red", font=("arial",40))
+    warning_label.place(relx = 0.5, rely = 0.2, anchor= CENTER)
+
+    merge_info = customtkinter.CTkLabel(master=warning_frame, text="Merge: Adds new data onto old file", bg_color="grey92", text_color="Black", font=("arial",20))
+    merge_info.place(relx = 0.5, rely = 0.42, anchor= CENTER)
+
+    overwrite_info = customtkinter.CTkLabel(master=warning_frame, text="Overwrite: Removes old data and creates a new file", bg_color="grey92", text_color="Black", font=("arial",20))
+    overwrite_info.place(relx = 0.5, rely = 0.57, anchor= CENTER)
+    
+
+    #options for data
+    merge_button = customtkinter.CTkButton(master=warning_frame, text="Merge", corner_radius=15, font=("arial",25),command= lambda: merge())
+    merge_button.place(relx = 0.3, rely = 0.8, anchor = CENTER)
+
+    overwrite_button = customtkinter.CTkButton(master=warning_frame, text="Overwrite", corner_radius=15, font=("arial",25), command= lambda: overwrite())
+    overwrite_button.place(relx = 0.7, rely = 0.8, anchor = CENTER)
+
+if skip == True:
+    workbook = xlsxwriter.Workbook(name)
+
+    worksheet = workbook.add_worksheet()
+
+    worksheet.write(0, 1, "Id")
+    worksheet.set_column("A:G", 20)
+    workbook.close()
+
+    row = 2
+    wb = load_workbook(name, data_only=True)
+    sheet = wb.active
+
+time_update()
+save_data()
+
 
 GUI.mainloop()
