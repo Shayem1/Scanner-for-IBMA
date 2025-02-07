@@ -103,10 +103,10 @@ def merge():
         elif data_started:  
             break  # Stop when an empty cell appears after valid data
         
-        if data_started:
-            column_data.append(col2_value if col2_value is not None else "")  # Replace None with ""
+        if data_started and col2_value is not None:  # Only append if col2_value is not None
+            column_data.append(col2_value)
 
-    index = index + len(column_data)
+        index = index + len(column_data)
 
     os.remove(name)
 
