@@ -81,6 +81,8 @@ def overwrite():
     wb = load_workbook(name, data_only=True)
     sheet = wb.active
 
+    save_data_manual()
+
     #removes data
 
 
@@ -127,6 +129,8 @@ def merge():
     row = 2
     wb = load_workbook(name, data_only=True)
     sheet = wb.active
+
+    save_data_manual()
 
     for id in column_data:
         # student ID is sent to be validated
@@ -240,7 +244,24 @@ def ID_entered(event):
     if validation[0] == False:
         red_list.append(StudID)
 
+    T = time.localtime()
+    minute = T[4]
+    day = T[2]
+    month = T[1]
+    if len(str(minute)) == 1:
+        minute = "0"+str(minute)
+    if len(str(day)) == 1:
+        day = "0"+str(day)
+    if len(str(month)) == 1:
+        month = "0"+str(month)
+    today = str(day_of_week)+" "+str(day)+"-"+str(month)+"-"+str(T[0])
+    
+    file_link = "logs\\" +str(today)+".txt"
+    with open(file_link, "a") as file:
+        file.write(str(T) + " "+ str(id) +"\n") 
+
     time_update_manual()
+    save_data_manual()
 
 def time_update_manual():
     global current_date, day_of_week, T, day, month
@@ -281,12 +302,13 @@ def time_update():
 # initialising the GUI
 GUI = customtkinter.CTk()
 GUI.geometry("1200x800")
-GUI.maxsize(width=1200, height=800)
+GUI.maxsize(width=1920, height=1080)
 GUI.minsize(width=1200, height=800)
 GUI.title("Student ID Scanner")
 GUI.grid_rowconfigure(1, weight=1, uniform="equal")
 GUI.grid_columnconfigure(1, weight=1, uniform="equal")
 customtkinter.set_appearance_mode("dark")
+GUI.attributes('-fullscreen', True)
 GUI.bind('<F11>', fullscreen)
 
 global skip
