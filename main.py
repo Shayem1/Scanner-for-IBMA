@@ -24,6 +24,29 @@ def save_data():
     # Set up the next save to occur after 5 minutes
     GUI.after(15000, save_data)
 
+def file_cleanup():
+    # Path to the "logs" folder
+    log_folder = 'logs'
+
+    # Get the current date and time
+    current_time = time.time()
+
+    # Calculate the cutoff time for 2 weeks ago
+    two_weeks_ago = current_time - (14 * 86400)  # 14 days * 86400 seconds/day
+
+    # Loop through all the files in the "logs" folder
+    for filename in os.listdir(log_folder):
+        file_path = os.path.join(log_folder, filename)
+
+        # Check if it's a file (not a folder)
+        if os.path.isfile(file_path):
+            # Get the last modified time of the file
+            file_modified_time = os.path.getmtime(file_path)
+
+            # If the file is older than 2 weeks, delete it
+            if file_modified_time < two_weeks_ago:
+                os.remove(file_path)
+
 def save_data_manual():
     global workbook, worksheet, wb, sheet, current_date, day_of_week
     current_date = datetime.datetime.now()
